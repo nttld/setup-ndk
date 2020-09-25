@@ -1,10 +1,10 @@
 import * as core from '@actions/core'
 import * as tc from '@actions/tool-cache'
+import * as path from 'path'
 import * as os from 'os'
 
 export async function getNdk(version: string): Promise<string> {
-  await checkArch()
-  const platform = os.platform()
+  await checkCompatibility()
 
   let toolPath: string
   toolPath = tc.find('ndk', version)
@@ -13,14 +13,18 @@ export async function getNdk(version: string): Promise<string> {
     core.info(`Found in cache @ ${toolPath}`)
   } else {
     core.info(`Attempting to download ${version}...`)
-    const downloadUrl = await getDownloadUrl(version, platform)
+    const downloadUrl = await getDownloadUrl(version)
     const downloadPath = await tc.downloadTool(downloadUrl)
 
     core.info('Extracting...')
     const extractPath = await tc.extractZip(downloadPath)
 
     core.info('Adding to the cache...')
-    toolPath = await tc.cacheDir(extractPath, 'ndk', version)
+    toolPath = await tc.cacheDir(
+      path.join(extractPath, `android-ndk-${version}`),
+      'ndk',
+      version
+    )
 
     core.info('Done')
   }
@@ -29,17 +33,20 @@ export async function getNdk(version: string): Promise<string> {
   return toolPath
 }
 
-async function checkArch(): Promise<void> {
+async function checkCompatibility(): Promise<void> {
+  const platform = os.platform()
+  if (platform !== 'linux' && platform !== 'win32' && platform !== 'darwin') {
+    throw new Error(`Unexpected platform '${platform}'`)
+  }
+
   const arch = os.arch()
-  if (os.arch() !== 'x64') {
+  if (arch !== 'x64') {
     throw new Error(`Unexpected arch '${arch}'`)
   }
 }
 
-async function getDownloadUrl(
-  version: string,
-  platform: NodeJS.Platform
-): Promise<string> {
+async function getDownloadUrl(version: string): Promise<string> {
+  const platform = os.platform()
   switch (platform) {
     case 'linux':
       return `https://dl.google.com/android/repository/android-ndk-${version}-linux-x86_64.zip`
@@ -48,6 +55,6 @@ async function getDownloadUrl(
     case 'darwin':
       return `https://dl.google.com/android/repository/android-ndk-${version}-darwin-x86_64.zip`
     default:
-      throw new Error(`Unexpected OS '${platform}'`)
+      throw new Error()
   }
 }
