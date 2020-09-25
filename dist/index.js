@@ -1956,11 +1956,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNdk = void 0;
 const core = __importStar(__webpack_require__(186));
 const tc = __importStar(__webpack_require__(784));
+const path = __importStar(__webpack_require__(622));
 const os = __importStar(__webpack_require__(87));
 function getNdk(version) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield checkArch();
-        const platform = os.platform();
+        yield checkCompatibility();
         let toolPath;
         toolPath = tc.find('ndk', version);
         if (toolPath) {
@@ -1968,12 +1968,12 @@ function getNdk(version) {
         }
         else {
             core.info(`Attempting to download ${version}...`);
-            const downloadUrl = yield getDownloadUrl(version, platform);
+            const downloadUrl = yield getDownloadUrl(version);
             const downloadPath = yield tc.downloadTool(downloadUrl);
             core.info('Extracting...');
             const extractPath = yield tc.extractZip(downloadPath);
             core.info('Adding to the cache...');
-            toolPath = yield tc.cacheDir(extractPath, 'ndk', version);
+            toolPath = yield tc.cacheDir(path.join(extractPath, `android-ndk-${version}`), 'ndk', version);
             core.info('Done');
         }
         core.addPath(toolPath);
@@ -1981,16 +1981,21 @@ function getNdk(version) {
     });
 }
 exports.getNdk = getNdk;
-function checkArch() {
+function checkCompatibility() {
     return __awaiter(this, void 0, void 0, function* () {
+        const platform = os.platform();
+        if (platform !== 'linux' && platform !== 'win32' && platform !== 'darwin') {
+            throw new Error(`Unexpected platform '${platform}'`);
+        }
         const arch = os.arch();
-        if (os.arch() !== 'x64') {
+        if (arch !== 'x64') {
             throw new Error(`Unexpected arch '${arch}'`);
         }
     });
 }
-function getDownloadUrl(version, platform) {
+function getDownloadUrl(version) {
     return __awaiter(this, void 0, void 0, function* () {
+        const platform = os.platform();
         switch (platform) {
             case 'linux':
                 return `https://dl.google.com/android/repository/android-ndk-${version}-linux-x86_64.zip`;
@@ -1999,7 +2004,7 @@ function getDownloadUrl(version, platform) {
             case 'darwin':
                 return `https://dl.google.com/android/repository/android-ndk-${version}-darwin-x86_64.zip`;
             default:
-                throw new Error(`Unexpected OS '${platform}'`);
+                throw new Error();
         }
     });
 }
