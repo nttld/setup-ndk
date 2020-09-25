@@ -10,8 +10,7 @@
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
-    "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "npm run build && npm run format && npm run lint && npm run package"
   },
   "repository": {
     "type": "git",
@@ -36,12 +35,8 @@
     "@vercel/ncc": "^0.23.0",
     "eslint": "^7.8.1",
     "eslint-plugin-github": "^4.1.1",
-    "eslint-plugin-jest": "^23.20.0",
-    "jest": "^24.9.0",
-    "jest-circus": "^26.4.2",
     "js-yaml": "^3.14.0",
     "prettier": "2.1.1",
-    "ts-jest": "^24.3.0",
     "typescript": "^4.0.2"
   }
 }
