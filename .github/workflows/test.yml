@@ -20,5 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        id: install-ndk
         with:
           ndk-version: r21d
+      - run: cat ${{ format('{0}/README.md', steps.install-ndk.outputs.ndk-path) }}

@@ -25,8 +25,8 @@ Use the installation path:
 steps:
   - uses: actions/checkout@v2
   - uses: nttld/setup-ndk@v1
+    id: install-ndk
     with:
       ndk-version: r21d
-    id: install-ndk
-  - runs: cat ${{ format('{0}/README.md', steps.install-ndk.outputs.ndk-path) }}
+  - run: cat ${{ format('{0}/README.md', steps.install-ndk.outputs.ndk-path) }}
 ```
