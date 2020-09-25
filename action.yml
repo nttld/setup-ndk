@@ -1,11 +1,10 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Setup Android NDK'
+description: 'Setup an Android NDK environment by downloading and adding it to the PATH'
+author: 'Raphaël Thériault'
 inputs:
-  milliseconds: # change this
+  ndk-version:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Exact version to use'
 runs:
   using: 'node12'
   main: 'dist/index.js'

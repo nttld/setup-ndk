@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "setup-ndk",
+  "version": "1.0.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Setup Android NDK",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,14 +15,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/nttld/setup-ndk.git"
   },
   "keywords": [
     "actions",
     "node",
-    "setup"
+    "setup",
+    "ndk"
   ],
-  "author": "",
+  "author": "Raphaël Thériault",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.5"
