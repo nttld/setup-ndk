@@ -26,7 +26,8 @@
   "author": "Raphaël Thériault",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.5"
+    "@actions/core": "^1.2.5",
+    "@actions/tool-cache": "^1.6.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",

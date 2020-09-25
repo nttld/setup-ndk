@@ -5,6 +5,9 @@ inputs:
   ndk-version:
     required: true
     description: 'Exact version to use'
+outputs:
+  ndk-path:
+    description: 'Installation path'
 runs:
   using: 'node12'
   main: 'dist/index.js'
