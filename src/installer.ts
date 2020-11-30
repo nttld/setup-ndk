@@ -29,7 +29,6 @@ export async function getNdk(version: string): Promise<string> {
     core.info('Done')
   }
 
-  core.addPath(toolPath)
   return toolPath
 }
 
