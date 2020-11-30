@@ -1,5 +1,5 @@
 name: 'Setup Android NDK'
-description: 'Setup an Android NDK environment by downloading and adding it to the PATH'
+description: 'Setup an Android NDK environment by downloading and returning it via ndk-path'
 author: 'Raphaël Thériault'
 inputs:
   ndk-version:
