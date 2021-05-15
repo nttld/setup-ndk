@@ -28,6 +28,7 @@ steps:
     id: setup-ndk
     with:
       ndk-version: r21e
+      add-to-path: false
   - run: ./build.sh
     env:
       ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}

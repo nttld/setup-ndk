@@ -1,5 +1,5 @@
 name: 'build-test'
-on: # rebuild any PRs and main branch changes
+on:
   pull_request:
   push:
     branches:
@@ -7,15 +7,13 @@ on: # rebuild any PRs and main branch changes
       - 'releases/*'
 
 jobs:
-  build: # make sure build/ci work properly
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          npm install
-      - run: |
-          npm run all
-  test: # make sure the action works on a clean machine without building
+      - run: npm install
+      - run: npm run all
+  test-single:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,4 +22,21 @@ jobs:
         with:
           ndk-version: r21e
       - run: ndk-build --version
-      - run: ls ${{ steps.install-ndk.outputs.ndk-path }}
+      - run: ${{ steps.install-ndk.outputs.ndk-path }}/ndk-build --version
+  test-multiple:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        id: install-ndk-21
+        with:
+          ndk-version: r21e
+          add-to-path: false
+      - uses: ./
+        id: install-ndk-22
+        with:
+          ndk-version: r22b
+          add-to-path: false
+      - run: '! which ndk-build'
+      - run: ${{ steps.install-ndk-21.outputs.ndk-path }}/ndk-build --version
+      - run: ${{ steps.install-ndk-22.outputs.ndk-path }}/ndk-build --version

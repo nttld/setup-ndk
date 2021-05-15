@@ -3,7 +3,10 @@ import * as tc from '@actions/tool-cache'
 import * as path from 'path'
 import * as os from 'os'
 
-export async function getNdk(version: string): Promise<string> {
+export async function getNdk(
+  version: string,
+  addToPath: boolean
+): Promise<string> {
   await checkCompatibility()
 
   let toolPath: string
@@ -29,18 +32,27 @@ export async function getNdk(version: string): Promise<string> {
     core.info('Done')
   }
 
+  if (addToPath) {
+    core.addPath(toolPath)
+    core.info('Added to path')
+  } else {
+    core.info('Not added to path')
+  }
+
   return toolPath
 }
 
 async function checkCompatibility(): Promise<void> {
   const platform = os.platform()
-  if (platform !== 'linux' && platform !== 'win32' && platform !== 'darwin') {
-    throw new Error(`Unexpected platform '${platform}'`)
+  const supportedPlatforms = ['linux', 'win32', 'darwin']
+  if (!supportedPlatforms.includes(platform)) {
+    throw new Error(`Unsupported platform '${platform}'`)
   }
 
   const arch = os.arch()
-  if (arch !== 'x64') {
-    throw new Error(`Unexpected arch '${arch}'`)
+  const supportedArchs = ['x64']
+  if (supportedArchs.includes(arch)) {
+    throw new Error(`Unsupported arch '${arch}'`)
   }
 }
 

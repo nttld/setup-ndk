@@ -3,8 +3,12 @@ description: 'Setup an Android NDK environment by downloading and returning it v
 author: 'Raphaël Thériault'
 inputs:
   ndk-version:
-    required: true
     description: 'Exact version to use'
+    required: true
+  add-to-path:
+    description: 'Add installation directory to path'
+    required: false
+    default: 'true'
 outputs:
   ndk-path:
     description: 'Installation path'

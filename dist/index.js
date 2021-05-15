@@ -40,7 +40,7 @@ const core = __importStar(__nccwpck_require__(186));
 const tc = __importStar(__nccwpck_require__(784));
 const path = __importStar(__nccwpck_require__(622));
 const os = __importStar(__nccwpck_require__(87));
-function getNdk(version) {
+function getNdk(version, addToPath) {
     return __awaiter(this, void 0, void 0, function* () {
         yield checkCompatibility();
         let toolPath;
@@ -58,6 +58,13 @@ function getNdk(version) {
             toolPath = yield tc.cacheDir(path.join(extractPath, `android-ndk-${version}`), 'ndk', version);
             core.info('Done');
         }
+        if (addToPath) {
+            core.addPath(toolPath);
+            core.info('Added to path');
+        }
+        else {
+            core.info('Not added to path');
+        }
         return toolPath;
     });
 }
@@ -65,12 +72,14 @@ exports.getNdk = getNdk;
 function checkCompatibility() {
     return __awaiter(this, void 0, void 0, function* () {
         const platform = os.platform();
-        if (platform !== 'linux' && platform !== 'win32' && platform !== 'darwin') {
-            throw new Error(`Unexpected platform '${platform}'`);
+        const supportedPlatforms = ['linux', 'win32', 'darwin'];
+        if (!supportedPlatforms.includes(platform)) {
+            throw new Error(`Unsupported platform '${platform}'`);
         }
         const arch = os.arch();
-        if (arch !== 'x64') {
-            throw new Error(`Unexpected arch '${arch}'`);
+        const supportedArchs = ['x64'];
+        if (supportedArchs.includes(arch)) {
+            throw new Error(`Unsupported arch '${arch}'`);
         }
     });
 }
@@ -133,13 +142,19 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const version = core.getInput('ndk-version');
-            const path = yield installer_1.getNdk(version);
+            const addToPath = getNegatableOutput('add-to-path');
+            const path = yield installer_1.getNdk(version, addToPath);
             core.setOutput('ndk-path', path);
         }
         catch (error) {
             core.setFailed(error.message);
         }
     });
+}
+function getNegatableOutput(name, options) {
+    const normalised = core.getInput(name, options).toLowerCase();
+    const falseyValues = ['false', 'f', 'no', 'n'];
+    return !falseyValues.includes(normalised);
 }
 run();
 
