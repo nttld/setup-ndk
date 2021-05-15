@@ -15,7 +15,7 @@ steps:
   - uses: actions/checkout@v2
   - uses: nttld/setup-ndk@v1
     with:
-      ndk-version: r21d
+      ndk-version: r21e
   - runs: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
 ```
 
@@ -27,8 +27,8 @@ steps:
   - uses: nttld/setup-ndk@v1
     id: setup-ndk
     with:
-      ndk-version: r21d
-  - run: |
-      echo ${{ steps.setup-ndk.outputs.ndk-path }} > ./ndkpath.txt
-      pwsh -Command ./build.ps1
+      ndk-version: r21e
+  - run: ./build.sh
+    env:
+      ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 ```

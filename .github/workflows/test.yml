@@ -22,5 +22,6 @@ jobs:
       - uses: ./
         id: install-ndk
         with:
-          ndk-version: r21d
+          ndk-version: r21e
+      - run: ndk-build --version
       - run: ls ${{ steps.install-ndk.outputs.ndk-path }}
