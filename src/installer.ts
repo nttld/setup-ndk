@@ -51,7 +51,7 @@ async function checkCompatibility(): Promise<void> {
 
   const arch = os.arch()
   const supportedArchs = ['x64']
-  if (supportedArchs.includes(arch)) {
+  if (!supportedArchs.includes(arch)) {
     throw new Error(`Unsupported arch '${arch}'`)
   }
 }
