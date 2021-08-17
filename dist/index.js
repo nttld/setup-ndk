@@ -117,7 +117,7 @@ function getArchString(version) {
 function getDownloadUrl(version) {
     const platform = getPlatormString();
     const arch = getArchString(version);
-    return `https://dl.google.com/android/repository/android-ndk-${version}${platform}${arch}`;
+    return `https://dl.google.com/android/repository/android-ndk-${version}${platform}${arch}.zip`;
 }
 
 
