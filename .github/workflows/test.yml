@@ -15,12 +15,15 @@ jobs:
       - run: npm run all
   test-single:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ndk: [r21e, r23]
     steps:
       - uses: actions/checkout@v2
       - uses: ./
         id: install-ndk
         with:
-          ndk-version: r21e
+          ndk-version: ${{ ndk }}
       - run: ndk-build --version
       - run: ${{ steps.install-ndk.outputs.ndk-path }}/ndk-build --version
   test-multiple:
@@ -35,7 +38,7 @@ jobs:
       - uses: ./
         id: install-ndk-22
         with:
-          ndk-version: r22b
+          ndk-version: r23
           add-to-path: false
       - run: '! which ndk-build'
       - run: ${{ steps.install-ndk-21.outputs.ndk-path }}/ndk-build --version
