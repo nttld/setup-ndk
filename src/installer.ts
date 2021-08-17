@@ -16,7 +16,7 @@ export async function getNdk(
     core.info(`Found in cache @ ${toolPath}`)
   } else {
     core.info(`Attempting to download ${version}...`)
-    const downloadUrl = await getDownloadUrl(version)
+    const downloadUrl = getDownloadUrl(version)
     const downloadPath = await tc.downloadTool(downloadUrl)
 
     core.info('Extracting...')
@@ -56,16 +56,43 @@ async function checkCompatibility(): Promise<void> {
   }
 }
 
-async function getDownloadUrl(version: string): Promise<string> {
+function getPlatormString(): string {
   const platform = os.platform()
   switch (platform) {
     case 'linux':
-      return `https://dl.google.com/android/repository/android-ndk-${version}-linux-x86_64.zip`
+      return '-linux'
     case 'win32':
-      return `https://dl.google.com/android/repository/android-ndk-${version}-windows-x86_64.zip`
+      return '-windows'
     case 'darwin':
-      return `https://dl.google.com/android/repository/android-ndk-${version}-darwin-x86_64.zip`
+      return '-darwin'
     default:
       throw new Error()
   }
+}
+
+function getArchString(version: string): string {
+  const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+  const numStr = version
+    .split('')
+    .filter(c => digits.includes(c))
+    .join('')
+  const num = parseInt(numStr, 10)
+
+  if (num >= 23) {
+    return ''
+  }
+
+  const arch = os.arch()
+  switch (arch) {
+    case 'x64':
+      return '-x86_64'
+    default:
+      throw new Error()
+  }
+}
+
+function getDownloadUrl(version: string): string {
+  const platform = getPlatormString()
+  const arch = getArchString(version)
+  return `https://dl.google.com/android/repository/android-ndk-${version}${platform}${arch}`
 }
