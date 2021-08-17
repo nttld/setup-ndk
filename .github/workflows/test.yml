@@ -23,7 +23,7 @@ jobs:
       - uses: ./
         id: install-ndk
         with:
-          ndk-version: ${{ ndk }}
+          ndk-version: ${{ matrix.ndk }}
       - run: ndk-build --version
       - run: ${{ steps.install-ndk.outputs.ndk-path }}/ndk-build --version
   test-multiple:
