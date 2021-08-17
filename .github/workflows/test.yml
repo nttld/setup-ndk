@@ -36,10 +36,10 @@ jobs:
           ndk-version: r21e
           add-to-path: false
       - uses: ./
-        id: install-ndk-22
+        id: install-ndk-23
         with:
           ndk-version: r23
           add-to-path: false
       - run: '! which ndk-build'
       - run: ${{ steps.install-ndk-21.outputs.ndk-path }}/ndk-build --version
-      - run: ${{ steps.install-ndk-22.outputs.ndk-path }}/ndk-build --version
+      - run: ${{ steps.install-ndk-23.outputs.ndk-path }}/ndk-build --version
