@@ -8,7 +8,7 @@ async function run(): Promise<void> {
     const path = await getNdk(version, addToPath)
     core.setOutput('ndk-path', path)
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(error.toString())
   }
 }
 
