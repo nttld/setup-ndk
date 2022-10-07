@@ -24,4 +24,4 @@ function asError(error: unknown): Error | string {
   else return `${error}`
 }
 
-run().catch((e) => core.setFailed(asError(error)))
+run().catch((e) => core.setFailed(asError(e)))
