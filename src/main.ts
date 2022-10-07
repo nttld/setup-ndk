@@ -2,10 +2,14 @@ import * as core from '@actions/core'
 import {getNdk} from './installer'
 
 async function run(): Promise<void> {
-  const version = core.getInput('ndk-version')
-  const addToPath = getNegatableOutput('add-to-path')
-  const path = await getNdk(version, addToPath)
-  core.setOutput('ndk-path', path)
+  try {
+    const version = core.getInput('ndk-version')
+    const addToPath = getNegatableOutput('add-to-path')
+    const path = await getNdk(version, addToPath)
+    core.setOutput('ndk-path', path)
+  } catch (error) {
+    core.setFailed(asError(error))
+  }
 }
 
 function getNegatableOutput(
@@ -24,4 +28,4 @@ function asError(error: unknown): Error | string {
   else return `${error}`
 }
 
-run().catch((e) => core.setFailed(asError(e)))
+run()
