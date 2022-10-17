@@ -1,0 +1,35 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        description: Major version number (MAJOR.minor.patch)
+        required: true
+      minor:
+        description: Minor version number (major.MINOR.patch)
+        required: true
+      patch:
+        description: Patch version number (major.minor.PATCH)
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - run: npm ci
+
+      - run: npm run all
+      - run: npm version "${MAJOR}.${MINOR}.${PATCH}"
+      - run: |
+          git push origin main
+          git push origin "v${MAJOR}.${MINOR}.${PATCH}"
+          git tag -fa "v${MAJOR}.${MINOR}" -m "setup-ndk v${MAJOR}.${MINOR}.${PATCH}"
+          git push origin "v${MAJOR}.${MINOR}" --force
+          git tag -fa "v${MAJOR}" -m "setup-ndk v${MAJOR}.${MINOR}.${PATCH}"
+          git push origin "v${MAJOR}" --force
+          git checkout -b "releases/v${MAJOR}.${MINOR}.${PATCH}"
+          git push origin "releases/v${MAJOR}.${MINOR}.${PATCH}"

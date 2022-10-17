@@ -8,7 +8,7 @@ This action sets up an Android NDK environment by downloading and caching a vers
 
 See [action.yml](action.yml)
 
-Basic:
+### Basic
 
 ```yml
 steps:
@@ -19,7 +19,7 @@ steps:
   - runs: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
 ```
 
-Using the installation path:
+### Using the installation path
 
 ```yml
 steps:

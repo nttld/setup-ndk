@@ -1,4 +1,4 @@
-name: 'build-test'
+name: Test
 on:
   pull_request:
   push:
@@ -10,8 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: npm install
+      - uses: actions/checkout@v3
+      - run: npm ci
       - run: npm run all
   test-single:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
       matrix:
         ndk: [r21e, r23]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./
         id: install-ndk
         with:
@@ -29,7 +29,7 @@ jobs:
   test-multiple:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./
         id: install-ndk-21
         with:
