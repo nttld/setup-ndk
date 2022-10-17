@@ -14,11 +14,12 @@ jobs:
       - run: npm ci
       - run: npm run all
   test-single:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         ndk-version: [r21e, r25b]
         local-cache: [true, false]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: ./
