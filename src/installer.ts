@@ -26,7 +26,9 @@ export async function getNdk(
       core.info(`Found in local cache @ ${cacheDir}`)
       installPath = cacheDir
     }
-  } else {
+  }
+
+  if (!installPath) {
     core.info(`Attempting to download ${version}...`)
     const downloadUrl = getDownloadUrl(version)
     const downloadPath = await tc.downloadTool(downloadUrl)

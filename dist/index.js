@@ -63,7 +63,7 @@ function getNdk(version, addToPath, localCache) {
                 installPath = cacheDir;
             }
         }
-        else {
+        if (!installPath) {
             core.info(`Attempting to download ${version}...`);
             const downloadUrl = getDownloadUrl(version);
             const downloadPath = yield tc.downloadTool(downloadUrl);

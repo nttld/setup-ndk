@@ -33,3 +33,14 @@ steps:
     env:
       ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 ```
+
+### Caching locally
+
+```yml
+steps:
+  - uses: actions/checkout@v2
+  - uses: nttld/setup-ndk@v1
+    with:
+      ndk-version: r21e
+      local-cache: true
+```
