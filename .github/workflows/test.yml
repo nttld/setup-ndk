@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ndk-version: [r21e, r23]
+        ndk-version: [r21e, r25b]
         local-cache: [true, false]
     steps:
       - uses: actions/checkout@v3
@@ -44,7 +44,7 @@ jobs:
       - uses: ./
         id: install-ndk-23
         with:
-          ndk-version: r23
+          ndk-version: r25b
           add-to-path: false
           local-cache: ${{ matrix.local-cache }}
       - run: '! which ndk-build'

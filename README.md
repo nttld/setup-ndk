@@ -15,7 +15,7 @@ steps:
   - uses: actions/checkout@v2
   - uses: nttld/setup-ndk@v1
     with:
-      ndk-version: r21e
+      ndk-version: r25b
   - runs: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
 ```
 
@@ -41,6 +41,6 @@ steps:
   - uses: actions/checkout@v2
   - uses: nttld/setup-ndk@v1
     with:
-      ndk-version: r21e
+      ndk-version: r25b
       local-cache: true
 ```
