@@ -13,7 +13,7 @@ export async function getNdk(
   await checkCompatibility()
 
   const cacheKey = getCacheKey(version)
-  const cacheDir = path.join(os.homedir(), '.ndk')
+  const cacheDir = path.join(os.homedir(), '.ndk', version)
 
   let installPath: string
   installPath = tc.find('ndk', version)
