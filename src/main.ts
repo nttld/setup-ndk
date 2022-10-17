@@ -4,22 +4,13 @@ import {getNdk} from './installer'
 async function run(): Promise<void> {
   try {
     const version = core.getInput('ndk-version')
-    const addToPath = getNegatableOutput('add-to-path')
-    const path = await getNdk(version, addToPath)
+    const addToPath = core.getBooleanInput('add-to-path')
+    const localCache = core.getBooleanInput('local-cache')
+    const path = await getNdk(version, addToPath, localCache)
     core.setOutput('ndk-path', path)
   } catch (error) {
     core.setFailed(asError(error))
   }
-}
-
-function getNegatableOutput(
-  name: string,
-  options?: core.InputOptions
-): boolean {
-  const normalised = core.getInput(name, options).toLowerCase()
-  const falseyValues = ['false', 'f', 'no', 'n']
-
-  return !falseyValues.includes(normalised)
 }
 
 function asError(error: unknown): Error | string {

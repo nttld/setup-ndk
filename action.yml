@@ -1,20 +1,24 @@
-name: 'Setup Android NDK'
-description: 'Setup an Android NDK environment by downloading and returning it via ndk-path'
-author: 'Raphaël Thériault'
+name: Setup Android NDK
+description: Setup an Android NDK environment by downloading and optionally caching it and adding it to the PATH
+author: Raphaël Thériault
 inputs:
   ndk-version:
-    description: 'Exact version to use'
+    description: Exact version to use
     required: true
   add-to-path:
-    description: 'Add installation directory to path'
+    description: Add installation directory to the PATH
     required: false
     default: 'true'
+  local-cache:
+    description: Use the local job cache on top of the runner tool cache
+    required: false
+    default: 'false'
 outputs:
   ndk-path:
-    description: 'Installation path'
+    description: Installation path
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: node16
+  main: dist/index.js
 branding:
-  icon: 'play'
-  color: 'green'
+  icon: play
+  color: green

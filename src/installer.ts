@@ -1,45 +1,62 @@
+import * as cache from '@actions/cache'
 import * as core from '@actions/core'
-import * as os from 'os'
-import * as path from 'path'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import * as tc from '@actions/tool-cache'
+import {copy, mkdirp} from 'fs-extra'
 
 export async function getNdk(
   version: string,
-  addToPath: boolean
+  addToPath: boolean,
+  localCache: boolean
 ): Promise<string> {
   await checkCompatibility()
 
-  let toolPath: string
-  toolPath = tc.find('ndk', version)
+  const cacheKey = getCacheKey(version)
+  const cacheDir = path.join(os.homedir(), '.ndk')
 
-  if (toolPath) {
-    core.info(`Found in cache @ ${toolPath}`)
+  let installPath: string
+  installPath = tc.find('ndk', version)
+
+  if (installPath) {
+    core.info(`Found in tool cache @ ${installPath}`)
+  } else if (localCache) {
+    const restored = await cache.restoreCache([cacheDir], cacheKey)
+    if (restored === cacheKey) {
+      core.info(`Found in local cache @ ${cacheDir}`)
+      installPath = cacheDir
+    }
   } else {
     core.info(`Attempting to download ${version}...`)
     const downloadUrl = getDownloadUrl(version)
     const downloadPath = await tc.downloadTool(downloadUrl)
 
     core.info('Extracting...')
-    const extractPath = await tc.extractZip(downloadPath)
+    const parentExtractPath = await tc.extractZip(downloadPath)
+    const extractedPath = path.join(parentExtractPath, `android-ndk-${version}`)
 
-    core.info('Adding to the cache...')
-    toolPath = await tc.cacheDir(
-      path.join(extractPath, `android-ndk-${version}`),
-      'ndk',
-      version
-    )
+    core.info('Adding to the tool cache...')
+    installPath = await tc.cacheDir(extractedPath, 'ndk', version)
+
+    if (localCache) {
+      core.info('Adding to the local cache...')
+      await mkdirp(cacheDir)
+      await copy(installPath, cacheDir)
+      await cache.saveCache([cacheDir], cacheKey)
+      installPath = cacheDir
+    }
 
     core.info('Done')
   }
 
   if (addToPath) {
-    core.addPath(toolPath)
+    core.addPath(installPath)
     core.info('Added to path')
   } else {
     core.info('Not added to path')
   }
 
-  return toolPath
+  return installPath
 }
 
 async function checkCompatibility(): Promise<void> {
@@ -71,11 +88,7 @@ function getPlatormString(): string {
 }
 
 function getArchString(version: string): string {
-  const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-  const numStr = version
-    .split('')
-    .filter(c => digits.includes(c))
-    .join('')
+  const numStr = version.slice(1)
   const num = parseInt(numStr, 10)
 
   if (num >= 23) {
@@ -89,6 +102,12 @@ function getArchString(version: string): string {
     default:
       throw new Error()
   }
+}
+
+function getCacheKey(version: string): string {
+  const platform = getPlatormString()
+  const arch = getArchString(version)
+  return `ndk-${version}${platform}${arch}`
 }
 
 function getDownloadUrl(version: string): string {
