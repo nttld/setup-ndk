@@ -1,6 +1,6 @@
 # setup-ndk
 
-![build-test status](https://github.com/nttld/setup-ndk/workflows/build-test/badge.svg)
+![test status](https://github.com/nttld/setup-ndk/actions/workflows/test.yml/badge.svg)
 
 This action sets up an Android NDK environment by downloading and caching a version of the NDK and adding it to the PATH
 
