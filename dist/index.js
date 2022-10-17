@@ -50,7 +50,7 @@ function getNdk(version, addToPath, localCache) {
     return __awaiter(this, void 0, void 0, function* () {
         yield checkCompatibility();
         const cacheKey = getCacheKey(version);
-        const cacheDir = path.join(os.homedir(), '.ndk');
+        const cacheDir = path.join(os.homedir(), '.setup-ndk', version);
         let installPath;
         installPath = tc.find('ndk', version);
         if (installPath) {
@@ -135,8 +135,7 @@ function getArchString(version) {
 }
 function getCacheKey(version) {
     const platform = getPlatormString();
-    const arch = getArchString(version);
-    return `ndk-${version}${platform}${arch}`;
+    return `setup-ndk-${version}${platform}`;
 }
 function getDownloadUrl(version) {
     const platform = getPlatormString();

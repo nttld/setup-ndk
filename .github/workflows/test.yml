@@ -30,6 +30,9 @@ jobs:
       - run: ${{ steps.install-ndk.outputs.ndk-path }}/ndk-build --version
   test-multiple:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        local-cache: [true, false]
     steps:
       - uses: actions/checkout@v3
       - uses: ./
@@ -37,11 +40,13 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
+          local-cache: ${{ matrix.local-cache }}
       - uses: ./
         id: install-ndk-23
         with:
           ndk-version: r23
           add-to-path: false
+          local-cache: ${{ matrix.local-cache }}
       - run: '! which ndk-build'
       - run: ${{ steps.install-ndk-21.outputs.ndk-path }}/ndk-build --version
       - run: ${{ steps.install-ndk-23.outputs.ndk-path }}/ndk-build --version
