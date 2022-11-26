@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
-    "@types/node": "^16.11.39",
+    "@types/node": "^18.11.9",
     "@typescript-eslint/parser": "^5.44.0",
     "@vercel/ncc": "^0.34.0",
     "eslint": "^8.28.0",
