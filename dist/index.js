@@ -68,7 +68,7 @@ function getNdk(url, addToPath, localCache) {
             core.info(`Attempting to download ${version}...`);
             const downloadPath = yield tc.downloadTool(url);
             core.info('Extracting...');
-            const parentExtractPath = yield tc.extractZip(downloadPath);
+            const parentExtractPath = yield tc.extractXar(downloadPath);
             const extractedPath = path.join(parentExtractPath, `android-ndk-${version}`);
             core.info('Adding to the tool cache...');
             installPath = yield tc.cacheDir(extractedPath, 'ndk', version);

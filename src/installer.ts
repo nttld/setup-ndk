@@ -35,7 +35,7 @@ export async function getNdk(
     const downloadPath = await tc.downloadTool(url)
 
     core.info('Extracting...')
-    const parentExtractPath = await tc.extractZip(downloadPath)
+    const parentExtractPath = await tc.extractXar(downloadPath)
     const extractedPath = path.join(parentExtractPath, `android-ndk-${version}`)
 
     core.info('Adding to the tool cache...')
