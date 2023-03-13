@@ -46,9 +46,10 @@ const os = __importStar(__nccwpck_require__(612));
 const path = __importStar(__nccwpck_require__(9411));
 const tc = __importStar(__nccwpck_require__(7784));
 const fs_extra_1 = __nccwpck_require__(5630);
-function getNdk(version, addToPath, localCache) {
+function getNdk(url, addToPath, localCache) {
     return __awaiter(this, void 0, void 0, function* () {
         yield checkCompatibility();
+        const version = "r25c";
         const cacheKey = getCacheKey(version);
         const cacheDir = path.join(os.homedir(), '.setup-ndk', version);
         let installPath;
@@ -65,8 +66,7 @@ function getNdk(version, addToPath, localCache) {
         }
         if (!installPath) {
             core.info(`Attempting to download ${version}...`);
-            const downloadUrl = getDownloadUrl(version);
-            const downloadPath = yield tc.downloadTool(downloadUrl);
+            const downloadPath = yield tc.downloadTool(url);
             core.info('Extracting...');
             const parentExtractPath = yield tc.extractZip(downloadPath);
             const extractedPath = path.join(parentExtractPath, `android-ndk-${version}`);
@@ -189,10 +189,10 @@ const installer_1 = __nccwpck_require__(1480);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const version = core.getInput('ndk-version');
+            const url = core.getInput('ndk-url');
             const addToPath = core.getBooleanInput('add-to-path');
             const localCache = core.getBooleanInput('local-cache');
-            const path = yield (0, installer_1.getNdk)(version, addToPath, localCache);
+            const path = yield (0, installer_1.getNdk)(url, addToPath, localCache);
             core.setOutput('ndk-path', path);
         }
         catch (error) {

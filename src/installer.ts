@@ -6,11 +6,13 @@ import * as tc from '@actions/tool-cache'
 import {copy, mkdirp} from 'fs-extra'
 
 export async function getNdk(
-  version: string,
+  url: string,
   addToPath: boolean,
   localCache: boolean
 ): Promise<string> {
   await checkCompatibility()
+
+  const version = "r25c"
 
   const cacheKey = getCacheKey(version)
   const cacheDir = path.join(os.homedir(), '.setup-ndk', version)
@@ -30,8 +32,7 @@ export async function getNdk(
 
   if (!installPath) {
     core.info(`Attempting to download ${version}...`)
-    const downloadUrl = getDownloadUrl(version)
-    const downloadPath = await tc.downloadTool(downloadUrl)
+    const downloadPath = await tc.downloadTool(url)
 
     core.info('Extracting...')
     const parentExtractPath = await tc.extractZip(downloadPath)

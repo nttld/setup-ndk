@@ -2,7 +2,7 @@ name: Setup Android NDK
 description: Setup an Android NDK environment by downloading and optionally caching it and adding it to the PATH
 author: Raphaël Thériault
 inputs:
-  ndk-version:
+  ndk-url:
     description: Exact version to use
     required: true
   add-to-path:

@@ -3,10 +3,10 @@ import {getNdk} from './installer'
 
 async function run(): Promise<void> {
   try {
-    const version = core.getInput('ndk-version')
+    const url = core.getInput('ndk-url')
     const addToPath = core.getBooleanInput('add-to-path')
     const localCache = core.getBooleanInput('local-cache')
-    const path = await getNdk(version, addToPath, localCache)
+    const path = await getNdk(url, addToPath, localCache)
     core.setOutput('ndk-path', path)
   } catch (error) {
     core.setFailed(asError(error))
