@@ -3,7 +3,7 @@ import * as core from '@actions/core'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import * as tc from '@actions/tool-cache'
-import {copy, mkdirp} from 'fs-extra'
+import {copy, mkdirp, readdir} from 'fs-extra'
 
 export async function getNdk(
   version: string,
@@ -35,7 +35,12 @@ export async function getNdk(
 
     core.info('Extracting...')
     const parentExtractPath = await tc.extractZip(downloadPath)
-    const extractedPath = path.join(parentExtractPath, `android-ndk-${version}`)
+    const extractedFiles = await readdir(parentExtractPath)
+    if (extractedFiles.length !== 1)
+      throw new Error(
+        `Invalid NDK archive contents (${extractedFiles.join(', ')})`
+      )
+    const extractedPath = path.join(parentExtractPath, extractedFiles[0])
 
     core.info('Adding to the tool cache...')
     installPath = await tc.cacheDir(extractedPath, 'ndk', version)
