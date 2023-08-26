@@ -44,7 +44,7 @@ jobs:
 
       - run: $ANDROID_HOME/ndk/${{ steps.install-ndk.outputs.ndk-full-version }}/ndk-build --version
         if: matrix.os != 'windows-latest'
-      - run: $Env:ANDROID_HOME/ndk/${{ steps.install-ndk.outputs.ndk-full-version }}/ndk-build --version
+      - run: "& $Env:ANDROID_HOME/ndk/${{ steps.install-ndk.outputs.ndk-full-version }}/ndk-build --version"
         if: matrix.os == 'windows-latest'
 
   test-multiple:
