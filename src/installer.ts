@@ -10,12 +10,13 @@ import * as ini from "ini"
 
 import { asError } from "./main"
 
-export async function getNdk(
-  version: string,
-  addToPath: boolean,
-  linkToSdk: boolean,
-  localCache: boolean,
-): Promise<string> {
+interface Options {
+  addToPath: boolean
+  linkToSdk: boolean
+  localCache: boolean
+}
+
+export async function getNdk(version: string, options: Options) {
   checkCompatibility()
 
   const cacheKey = getCacheKey(version)
@@ -26,7 +27,7 @@ export async function getNdk(
 
   if (installPath) {
     core.info(`Found in tool cache @ ${installPath}`)
-  } else if (localCache) {
+  } else if (options.localCache) {
     const restored = await cache.restoreCache([cacheDir], cacheKey)
     if (restored === cacheKey) {
       core.info(`Found in local cache @ ${cacheDir}`)
@@ -51,7 +52,7 @@ export async function getNdk(
     core.info("Adding to the tool cache...")
     installPath = await tc.cacheDir(extractedPath, "ndk", version)
 
-    if (localCache) {
+    if (options.localCache) {
       core.info("Adding to the local cache...")
       await mkdirp(cacheDir)
       await copy(installPath, cacheDir)
@@ -62,45 +63,40 @@ export async function getNdk(
     core.info("Done")
   }
 
-  if (addToPath) {
+  if (options.addToPath) {
     core.addPath(installPath)
     core.info("Added to path")
   } else {
     core.info("Not added to path")
   }
 
+  let fullVersion: string | undefined
   try {
-    const fullVersion = await getFullVersion(installPath)
-    core.setOutput("ndk-full-version", fullVersion)
-
-    if (linkToSdk && "ANDROID_HOME" in env) {
-      await tryLinkToSdk(installPath, fullVersion, env.ANDROID_HOME!)
-    }
+    fullVersion = await getFullVersion(installPath)
   } catch (error) {
     core.warning(asError(error))
     core.warning("Failed to detect full version")
   }
 
-  return installPath
+  if (options.linkToSdk && fullVersion && "ANDROID_HOME" in env) {
+    await linkToSdk(installPath, fullVersion, env.ANDROID_HOME!)
+  }
+
+  return { path: installPath, fullVersion }
 }
 
-async function tryLinkToSdk(
+async function linkToSdk(
   installPath: string,
   fullVersion: string,
   androidHome: string,
 ) {
   core.info("Linking to SDK...")
 
-  try {
-    const ndksPath = path.join(androidHome, "ndk")
-    await mkdirp(ndksPath)
+  const ndksPath = path.join(androidHome, "ndk")
+  await mkdirp(ndksPath)
 
-    const ndkPath = path.join(ndksPath, fullVersion)
-    await symlink(installPath, ndkPath, "dir")
-  } catch (error) {
-    core.warning(asError(error))
-    core.warning("Failed to link to SDK")
-  }
+  const ndkPath = path.join(ndksPath, fullVersion)
+  await symlink(installPath, ndkPath, "dir")
 }
 
 async function getFullVersion(installPath: string) {

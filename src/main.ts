@@ -7,8 +7,15 @@ async function main() {
   const addToPath = core.getBooleanInput("add-to-path")
   const linkToSdk = core.getBooleanInput("link-to-sdk")
   const localCache = core.getBooleanInput("local-cache")
-  const path = await getNdk(version, addToPath, linkToSdk, localCache)
+
+  const { path, fullVersion } = await getNdk(version, {
+    addToPath,
+    linkToSdk,
+    localCache,
+  })
+
   core.setOutput("ndk-path", path)
+  core.setOutput("ndk-full-version", fullVersion)
 }
 
 export function asError(error: unknown): Error | string {

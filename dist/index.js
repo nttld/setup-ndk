@@ -63377,7 +63377,7 @@ const tc = __importStar(__nccwpck_require__(7784));
 const fs_extra_1 = __nccwpck_require__(5630);
 const ini = __importStar(__nccwpck_require__(45));
 const main_1 = __nccwpck_require__(399);
-async function getNdk(version, addToPath, linkToSdk, localCache) {
+async function getNdk(version, options) {
     checkCompatibility();
     const cacheKey = getCacheKey(version);
     const cacheDir = path.join(os.homedir(), ".setup-ndk", version);
@@ -63386,7 +63386,7 @@ async function getNdk(version, addToPath, linkToSdk, localCache) {
     if (installPath) {
         core.info(`Found in tool cache @ ${installPath}`);
     }
-    else if (localCache) {
+    else if (options.localCache) {
         const restored = await cache.restoreCache([cacheDir], cacheKey);
         if (restored === cacheKey) {
             core.info(`Found in local cache @ ${cacheDir}`);
@@ -63405,7 +63405,7 @@ async function getNdk(version, addToPath, linkToSdk, localCache) {
         const extractedPath = path.join(parentExtractPath, extractedFiles[0]);
         core.info("Adding to the tool cache...");
         installPath = await tc.cacheDir(extractedPath, "ndk", version);
-        if (localCache) {
+        if (options.localCache) {
             core.info("Adding to the local cache...");
             await (0, fs_extra_1.mkdirp)(cacheDir);
             await (0, fs_extra_1.copy)(installPath, cacheDir);
@@ -63414,39 +63414,33 @@ async function getNdk(version, addToPath, linkToSdk, localCache) {
         }
         core.info("Done");
     }
-    if (addToPath) {
+    if (options.addToPath) {
         core.addPath(installPath);
         core.info("Added to path");
     }
     else {
         core.info("Not added to path");
     }
+    let fullVersion;
     try {
-        const fullVersion = await getFullVersion(installPath);
-        core.setOutput("ndk-full-version", fullVersion);
-        if (linkToSdk && "ANDROID_HOME" in node_process_1.env) {
-            await tryLinkToSdk(installPath, fullVersion, node_process_1.env.ANDROID_HOME);
-        }
+        fullVersion = await getFullVersion(installPath);
     }
     catch (error) {
         core.warning((0, main_1.asError)(error));
         core.warning("Failed to detect full version");
     }
-    return installPath;
+    if (options.linkToSdk && fullVersion && "ANDROID_HOME" in node_process_1.env) {
+        await linkToSdk(installPath, fullVersion, node_process_1.env.ANDROID_HOME);
+    }
+    return { path: installPath, fullVersion };
 }
 exports.getNdk = getNdk;
-async function tryLinkToSdk(installPath, fullVersion, androidHome) {
+async function linkToSdk(installPath, fullVersion, androidHome) {
     core.info("Linking to SDK...");
-    try {
-        const ndksPath = path.join(androidHome, "ndk");
-        await (0, fs_extra_1.mkdirp)(ndksPath);
-        const ndkPath = path.join(ndksPath, fullVersion);
-        await (0, fs_extra_1.symlink)(installPath, ndkPath, "dir");
-    }
-    catch (error) {
-        core.warning((0, main_1.asError)(error));
-        core.warning("Failed to link to SDK");
-    }
+    const ndksPath = path.join(androidHome, "ndk");
+    await (0, fs_extra_1.mkdirp)(ndksPath);
+    const ndkPath = path.join(ndksPath, fullVersion);
+    await (0, fs_extra_1.symlink)(installPath, ndkPath, "dir");
 }
 async function getFullVersion(installPath) {
     core.info("Detecting full version...");
@@ -63552,8 +63546,13 @@ async function main() {
     const addToPath = core.getBooleanInput("add-to-path");
     const linkToSdk = core.getBooleanInput("link-to-sdk");
     const localCache = core.getBooleanInput("local-cache");
-    const path = await (0, installer_1.getNdk)(version, addToPath, linkToSdk, localCache);
+    const { path, fullVersion } = await (0, installer_1.getNdk)(version, {
+        addToPath,
+        linkToSdk,
+        localCache,
+    });
     core.setOutput("ndk-path", path);
+    core.setOutput("ndk-full-version", fullVersion);
 }
 function asError(error) {
     if (typeof error === "string")
