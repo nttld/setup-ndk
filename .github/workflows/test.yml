@@ -41,7 +41,7 @@ jobs:
 
       - run: ndk-build --version
       - run: ${{ steps.install-ndk.outputs.ndk-path }}/ndk-build --version
-      - run: ${{ env.ANDROID_HOME }}/ndk/${{ steps.install-ndk.outputs.ndk-full-version }}/ndk-build --version
+      - run: $ANDROID_HOME/ndk/${{ steps.install-ndk.outputs.ndk-full-version }}/ndk-build --version
 
   test-multiple:
     runs-on: ubuntu-latest
