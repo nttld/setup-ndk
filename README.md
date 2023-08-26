@@ -45,7 +45,7 @@ steps:
   - run: ./gradlew build
 ```
 
-### Caching locally in the workflow
+### Caching locally for the workflow
 
 ```yml
 steps:
