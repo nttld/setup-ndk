@@ -4,21 +4,31 @@ on:
   push:
     branches:
       - main
-      - 'releases/*'
+      - "releases/*"
 
 jobs:
-  build:
+  checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
       - run: npm ci
-      - run: npm run all
+
+      - run: npm run lint
+      - run: npm run build
+
+      - run: git diff -aw --exit-code dist/index.js
+
   test-single:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         ndk-version: [r21e, r25b]
         local-cache: [true, false]
+
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -27,13 +37,16 @@ jobs:
         with:
           ndk-version: ${{ matrix.ndk-version }}
           local-cache: ${{ matrix.local-cache }}
+
       - run: ndk-build --version
       - run: ${{ steps.install-ndk.outputs.ndk-path }}/ndk-build --version
+
   test-multiple:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         local-cache: [true, false]
+
     steps:
       - uses: actions/checkout@v3
       - uses: ./
@@ -43,11 +56,12 @@ jobs:
           add-to-path: false
           local-cache: ${{ matrix.local-cache }}
       - uses: ./
-        id: install-ndk-23
+        id: install-ndk-25
         with:
           ndk-version: r25b
           add-to-path: false
           local-cache: ${{ matrix.local-cache }}
-      - run: '! which ndk-build'
+
+      - run: "! which ndk-build"
       - run: ${{ steps.install-ndk-21.outputs.ndk-path }}/ndk-build --version
-      - run: ${{ steps.install-ndk-23.outputs.ndk-path }}/ndk-build --version
+      - run: ${{ steps.install-ndk-25.outputs.ndk-path }}/ndk-build --version
