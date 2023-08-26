@@ -15,7 +15,7 @@ async function main() {
   })
 
   core.setOutput("ndk-path", path)
-  core.setOutput("ndk-full-version", fullVersion)
+  if (fullVersion) core.setOutput("ndk-full-version", fullVersion)
 }
 
 export function asError(error: unknown): Error | string {

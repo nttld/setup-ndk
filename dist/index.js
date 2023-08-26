@@ -63552,7 +63552,8 @@ async function main() {
         localCache,
     });
     core.setOutput("ndk-path", path);
-    core.setOutput("ndk-full-version", fullVersion);
+    if (fullVersion)
+        core.setOutput("ndk-full-version", fullVersion);
 }
 function asError(error) {
     if (typeof error === "string")
