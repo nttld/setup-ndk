@@ -1,16 +1,22 @@
 import * as os from "node:os"
 import * as path from "node:path"
+import { env } from "node:process"
 
 import * as cache from "@actions/cache"
 import * as core from "@actions/core"
 import * as tc from "@actions/tool-cache"
-import { copy, mkdirp, readdir } from "fs-extra"
+import { copy, mkdirp, readdir, readFile, symlink } from "fs-extra"
+import * as ini from "ini"
 
-export async function getNdk(
-  version: string,
-  addToPath: boolean,
-  localCache: boolean,
-): Promise<string> {
+import { asError } from "./main"
+
+interface Options {
+  addToPath: boolean
+  linkToSdk: boolean
+  localCache: boolean
+}
+
+export async function getNdk(version: string, options: Options) {
   checkCompatibility()
 
   const cacheKey = getCacheKey(version)
@@ -21,7 +27,7 @@ export async function getNdk(
 
   if (installPath) {
     core.info(`Found in tool cache @ ${installPath}`)
-  } else if (localCache) {
+  } else if (options.localCache) {
     const restored = await cache.restoreCache([cacheDir], cacheKey)
     if (restored === cacheKey) {
       core.info(`Found in local cache @ ${cacheDir}`)
@@ -46,7 +52,7 @@ export async function getNdk(
     core.info("Adding to the tool cache...")
     installPath = await tc.cacheDir(extractedPath, "ndk", version)
 
-    if (localCache) {
+    if (options.localCache) {
       core.info("Adding to the local cache...")
       await mkdirp(cacheDir)
       await copy(installPath, cacheDir)
@@ -57,27 +63,81 @@ export async function getNdk(
     core.info("Done")
   }
 
-  if (addToPath) {
+  if (options.addToPath) {
     core.addPath(installPath)
     core.info("Added to path")
   } else {
     core.info("Not added to path")
   }
 
-  return installPath
+  let fullVersion: string | undefined
+  try {
+    fullVersion = await getFullVersion(installPath)
+  } catch (error) {
+    core.warning(asError(error))
+    core.warning("Failed to detect full version")
+  }
+
+  if (options.linkToSdk && fullVersion && "ANDROID_HOME" in env) {
+    await linkToSdk(installPath, fullVersion, env.ANDROID_HOME!)
+  }
+
+  return { path: installPath, fullVersion }
+}
+
+async function linkToSdk(
+  installPath: string,
+  fullVersion: string,
+  androidHome: string,
+) {
+  core.info("Linking to SDK...")
+
+  const ndksPath = path.join(androidHome, "ndk")
+  await mkdirp(ndksPath)
+
+  const ndkPath = path.join(ndksPath, fullVersion)
+  try {
+    await symlink(installPath, ndkPath, "dir")
+  } catch (error) {
+    const exists =
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "EEXIST"
+    if (!exists) throw error
+  }
+}
+
+async function getFullVersion(installPath: string) {
+  core.info("Detecting full version...")
+
+  const propertiesPath = path.join(installPath, "source.properties")
+  const propertiesContent = await readFile(propertiesPath, {
+    encoding: "utf-8",
+  })
+  const properties = ini.parse(propertiesContent)
+
+  if (
+    "Pkg.Revision" in properties &&
+    typeof properties["Pkg.Revision"] === "string"
+  ) {
+    return properties["Pkg.Revision"]
+  } else {
+    throw new Error("source.properties file is missing Pkg.Revision")
+  }
 }
 
 function checkCompatibility() {
   const platform = os.platform()
   const supportedPlatforms = ["linux", "win32", "darwin"]
   if (!supportedPlatforms.includes(platform)) {
-    throw new Error(`Unsupported platform '${platform}'`)
+    throw new Error(`Unsupported platform "${platform}"`)
   }
 
   const arch = os.arch()
   const supportedArchs = ["x64"]
   if (!supportedArchs.includes(arch)) {
-    throw new Error(`Unsupported arch '${arch}'`)
+    throw new Error(`Unsupported arch "${arch}"`)
   }
 }
 

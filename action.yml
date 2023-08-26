@@ -1,6 +1,10 @@
 name: Setup Android NDK
 description: Setup an Android NDK environment by downloading and optionally caching it and adding it to the PATH
 author: Raphaël Thériault
+branding:
+  icon: play
+  color: green
+
 inputs:
   ndk-version:
     description: Exact version to use
@@ -9,6 +13,10 @@ inputs:
     description: Add installation directory to the PATH
     required: false
     default: "true"
+  link-to-sdk:
+    description: Add installed NDK to the Android SDK
+    required: false
+    default: "false"
   local-cache:
     description: Use the local job cache on top of the runner tool cache
     required: false
@@ -16,9 +24,9 @@ inputs:
 outputs:
   ndk-path:
     description: Installation path
+  ndk-full-version:
+    description: Full NDK version
+
 runs:
   using: node16
   main: dist/index.js
-branding:
-  icon: play
-  color: green

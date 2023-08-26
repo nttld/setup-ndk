@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        ndk-version: [r21e, r25b]
+        ndk-version: [r21e, r25c]
         local-cache: [true, false]
 
     runs-on: ${{ matrix.os }}
@@ -37,9 +37,15 @@ jobs:
         with:
           ndk-version: ${{ matrix.ndk-version }}
           local-cache: ${{ matrix.local-cache }}
+          link-to-sdk: true
 
       - run: ndk-build --version
       - run: ${{ steps.install-ndk.outputs.ndk-path }}/ndk-build --version
+
+      - run: $ANDROID_HOME/ndk/${{ steps.install-ndk.outputs.ndk-full-version }}/ndk-build --version
+        if: matrix.os != 'windows-latest'
+      - run: "& $Env:ANDROID_HOME/ndk/${{ steps.install-ndk.outputs.ndk-full-version }}/ndk-build --version"
+        if: matrix.os == 'windows-latest'
 
   test-multiple:
     runs-on: ubuntu-latest
@@ -58,7 +64,7 @@ jobs:
       - uses: ./
         id: install-ndk-25
         with:
-          ndk-version: r25b
+          ndk-version: r25c
           add-to-path: false
           local-cache: ${{ matrix.local-cache }}
 
