@@ -63440,7 +63440,17 @@ async function linkToSdk(installPath, fullVersion, androidHome) {
     const ndksPath = path.join(androidHome, "ndk");
     await (0, fs_extra_1.mkdirp)(ndksPath);
     const ndkPath = path.join(ndksPath, fullVersion);
-    await (0, fs_extra_1.symlink)(installPath, ndkPath, "dir");
+    try {
+        await (0, fs_extra_1.symlink)(installPath, ndkPath, "dir");
+    }
+    catch (error) {
+        const exists = error &&
+            typeof error === "object" &&
+            "code" in error &&
+            error.code === "EEXIST";
+        if (!exists)
+            throw error;
+    }
 }
 async function getFullVersion(installPath) {
     core.info("Detecting full version...");

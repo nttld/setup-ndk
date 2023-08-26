@@ -96,7 +96,16 @@ async function linkToSdk(
   await mkdirp(ndksPath)
 
   const ndkPath = path.join(ndksPath, fullVersion)
-  await symlink(installPath, ndkPath, "dir")
+  try {
+    await symlink(installPath, ndkPath, "dir")
+  } catch (error) {
+    const exists =
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "EEXIST"
+    if (!exists) throw error
+  }
 }
 
 async function getFullVersion(installPath: string) {
