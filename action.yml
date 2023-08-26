@@ -8,11 +8,11 @@ inputs:
   add-to-path:
     description: Add installation directory to the PATH
     required: false
-    default: 'true'
+    default: "true"
   local-cache:
     description: Use the local job cache on top of the runner tool cache
     required: false
-    default: 'false'
+    default: "false"
 outputs:
   ndk-path:
     description: Installation path

@@ -1,221 +1,6 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 1480:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getNdk = void 0;
-const cache = __importStar(__nccwpck_require__(7799));
-const core = __importStar(__nccwpck_require__(2186));
-const os = __importStar(__nccwpck_require__(612));
-const path = __importStar(__nccwpck_require__(9411));
-const tc = __importStar(__nccwpck_require__(7784));
-const fs_extra_1 = __nccwpck_require__(5630);
-function getNdk(version, addToPath, localCache) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield checkCompatibility();
-        const cacheKey = getCacheKey(version);
-        const cacheDir = path.join(os.homedir(), '.setup-ndk', version);
-        let installPath;
-        installPath = tc.find('ndk', version);
-        if (installPath) {
-            core.info(`Found in tool cache @ ${installPath}`);
-        }
-        else if (localCache) {
-            const restored = yield cache.restoreCache([cacheDir], cacheKey);
-            if (restored === cacheKey) {
-                core.info(`Found in local cache @ ${cacheDir}`);
-                installPath = cacheDir;
-            }
-        }
-        if (!installPath) {
-            core.info(`Attempting to download ${version}...`);
-            const downloadUrl = getDownloadUrl(version);
-            const downloadPath = yield tc.downloadTool(downloadUrl);
-            core.info('Extracting...');
-            const parentExtractPath = yield tc.extractZip(downloadPath);
-            const extractedFiles = yield (0, fs_extra_1.readdir)(parentExtractPath);
-            if (extractedFiles.length !== 1)
-                throw new Error(`Invalid NDK archive contents (${extractedFiles.join(', ')})`);
-            const extractedPath = path.join(parentExtractPath, extractedFiles[0]);
-            core.info('Adding to the tool cache...');
-            installPath = yield tc.cacheDir(extractedPath, 'ndk', version);
-            if (localCache) {
-                core.info('Adding to the local cache...');
-                yield (0, fs_extra_1.mkdirp)(cacheDir);
-                yield (0, fs_extra_1.copy)(installPath, cacheDir);
-                yield cache.saveCache([cacheDir], cacheKey);
-                installPath = cacheDir;
-            }
-            core.info('Done');
-        }
-        if (addToPath) {
-            core.addPath(installPath);
-            core.info('Added to path');
-        }
-        else {
-            core.info('Not added to path');
-        }
-        return installPath;
-    });
-}
-exports.getNdk = getNdk;
-function checkCompatibility() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const platform = os.platform();
-        const supportedPlatforms = ['linux', 'win32', 'darwin'];
-        if (!supportedPlatforms.includes(platform)) {
-            throw new Error(`Unsupported platform '${platform}'`);
-        }
-        const arch = os.arch();
-        const supportedArchs = ['x64'];
-        if (!supportedArchs.includes(arch)) {
-            throw new Error(`Unsupported arch '${arch}'`);
-        }
-    });
-}
-function getPlatormString() {
-    const platform = os.platform();
-    switch (platform) {
-        case 'linux':
-            return '-linux';
-        case 'win32':
-            return '-windows';
-        case 'darwin':
-            return '-darwin';
-        default:
-            throw new Error();
-    }
-}
-function getArchString(version) {
-    const numStr = version.slice(1);
-    const num = parseInt(numStr, 10);
-    if (num >= 23) {
-        return '';
-    }
-    const arch = os.arch();
-    switch (arch) {
-        case 'x64':
-            return '-x86_64';
-        default:
-            throw new Error();
-    }
-}
-function getCacheKey(version) {
-    const platform = getPlatormString();
-    return `setup-ndk-${version}${platform}`;
-}
-function getDownloadUrl(version) {
-    const platform = getPlatormString();
-    const arch = getArchString(version);
-    return `https://dl.google.com/android/repository/android-ndk-${version}${platform}${arch}.zip`;
-}
-
-
-/***/ }),
-
-/***/ 3109:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2186));
-const installer_1 = __nccwpck_require__(1480);
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const version = core.getInput('ndk-version');
-            const addToPath = core.getBooleanInput('add-to-path');
-            const localCache = core.getBooleanInput('local-cache');
-            const path = yield (0, installer_1.getNdk)(version, addToPath, localCache);
-            core.setOutput('ndk-path', path);
-        }
-        catch (error) {
-            core.setFailed(asError(error));
-        }
-    });
-}
-function asError(error) {
-    if (typeof error === 'string')
-        return error;
-    else if (error instanceof Error)
-        return error;
-    else
-        return `${error}`;
-}
-run();
-
-
-/***/ }),
-
 /***/ 7799:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -63268,6 +63053,194 @@ module.exports.implForWrapper = function (wrapper) {
 
 /***/ }),
 
+/***/ 2574:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getNdk = void 0;
+const os = __importStar(__nccwpck_require__(612));
+const path = __importStar(__nccwpck_require__(9411));
+const cache = __importStar(__nccwpck_require__(7799));
+const core = __importStar(__nccwpck_require__(2186));
+const tc = __importStar(__nccwpck_require__(7784));
+const fs_extra_1 = __nccwpck_require__(5630);
+async function getNdk(version, addToPath, localCache) {
+    checkCompatibility();
+    const cacheKey = getCacheKey(version);
+    const cacheDir = path.join(os.homedir(), ".setup-ndk", version);
+    let installPath;
+    installPath = tc.find("ndk", version);
+    if (installPath) {
+        core.info(`Found in tool cache @ ${installPath}`);
+    }
+    else if (localCache) {
+        const restored = await cache.restoreCache([cacheDir], cacheKey);
+        if (restored === cacheKey) {
+            core.info(`Found in local cache @ ${cacheDir}`);
+            installPath = cacheDir;
+        }
+    }
+    if (!installPath) {
+        core.info(`Attempting to download ${version}...`);
+        const downloadUrl = getDownloadUrl(version);
+        const downloadPath = await tc.downloadTool(downloadUrl);
+        core.info("Extracting...");
+        const parentExtractPath = await tc.extractZip(downloadPath);
+        const extractedFiles = await (0, fs_extra_1.readdir)(parentExtractPath);
+        if (extractedFiles.length !== 1)
+            throw new Error(`Invalid NDK archive contents (${extractedFiles.join(", ")})`);
+        const extractedPath = path.join(parentExtractPath, extractedFiles[0]);
+        core.info("Adding to the tool cache...");
+        installPath = await tc.cacheDir(extractedPath, "ndk", version);
+        if (localCache) {
+            core.info("Adding to the local cache...");
+            await (0, fs_extra_1.mkdirp)(cacheDir);
+            await (0, fs_extra_1.copy)(installPath, cacheDir);
+            await cache.saveCache([cacheDir], cacheKey);
+            installPath = cacheDir;
+        }
+        core.info("Done");
+    }
+    if (addToPath) {
+        core.addPath(installPath);
+        core.info("Added to path");
+    }
+    else {
+        core.info("Not added to path");
+    }
+    return installPath;
+}
+exports.getNdk = getNdk;
+function checkCompatibility() {
+    const platform = os.platform();
+    const supportedPlatforms = ["linux", "win32", "darwin"];
+    if (!supportedPlatforms.includes(platform)) {
+        throw new Error(`Unsupported platform '${platform}'`);
+    }
+    const arch = os.arch();
+    const supportedArchs = ["x64"];
+    if (!supportedArchs.includes(arch)) {
+        throw new Error(`Unsupported arch '${arch}'`);
+    }
+}
+function getPlatormString() {
+    const platform = os.platform();
+    switch (platform) {
+        case "linux":
+            return "-linux";
+        case "win32":
+            return "-windows";
+        case "darwin":
+            return "-darwin";
+        default:
+            throw new Error();
+    }
+}
+function getArchString(version) {
+    const numStr = version.slice(1);
+    const num = parseInt(numStr, 10);
+    if (num >= 23) {
+        return "";
+    }
+    const arch = os.arch();
+    switch (arch) {
+        case "x64":
+            return "-x86_64";
+        default:
+            throw new Error();
+    }
+}
+function getCacheKey(version) {
+    const platform = getPlatormString();
+    return `setup-ndk-${version}${platform}`;
+}
+function getDownloadUrl(version) {
+    const platform = getPlatormString();
+    const arch = getArchString(version);
+    return `https://dl.google.com/android/repository/android-ndk-${version}${platform}${arch}.zip`;
+}
+
+
+/***/ }),
+
+/***/ 399:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(2186));
+const installer_1 = __nccwpck_require__(2574);
+async function main() {
+    const version = core.getInput("ndk-version");
+    const addToPath = core.getBooleanInput("add-to-path");
+    const localCache = core.getBooleanInput("local-cache");
+    const path = await (0, installer_1.getNdk)(version, addToPath, localCache);
+    core.setOutput("ndk-path", path);
+}
+function asError(error) {
+    if (typeof error === "string")
+        return error;
+    else if (error instanceof Error)
+        return error;
+    else
+        return Object.prototype.toString.call(error);
+}
+main().catch((error) => {
+    core.setFailed(asError(error));
+});
+
+
+/***/ }),
+
 /***/ 2877:
 /***/ ((module) => {
 
@@ -63510,7 +63483,7 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(3109);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(399);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()

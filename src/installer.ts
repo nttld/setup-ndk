@@ -1,22 +1,23 @@
-import * as cache from '@actions/cache'
-import * as core from '@actions/core'
-import * as os from 'node:os'
-import * as path from 'node:path'
-import * as tc from '@actions/tool-cache'
-import {copy, mkdirp, readdir} from 'fs-extra'
+import * as os from "node:os"
+import * as path from "node:path"
+
+import * as cache from "@actions/cache"
+import * as core from "@actions/core"
+import * as tc from "@actions/tool-cache"
+import { copy, mkdirp, readdir } from "fs-extra"
 
 export async function getNdk(
   version: string,
   addToPath: boolean,
-  localCache: boolean
+  localCache: boolean,
 ): Promise<string> {
-  await checkCompatibility()
+  checkCompatibility()
 
   const cacheKey = getCacheKey(version)
-  const cacheDir = path.join(os.homedir(), '.setup-ndk', version)
+  const cacheDir = path.join(os.homedir(), ".setup-ndk", version)
 
   let installPath: string
-  installPath = tc.find('ndk', version)
+  installPath = tc.find("ndk", version)
 
   if (installPath) {
     core.info(`Found in tool cache @ ${installPath}`)
@@ -33,90 +34,90 @@ export async function getNdk(
     const downloadUrl = getDownloadUrl(version)
     const downloadPath = await tc.downloadTool(downloadUrl)
 
-    core.info('Extracting...')
+    core.info("Extracting...")
     const parentExtractPath = await tc.extractZip(downloadPath)
     const extractedFiles = await readdir(parentExtractPath)
     if (extractedFiles.length !== 1)
       throw new Error(
-        `Invalid NDK archive contents (${extractedFiles.join(', ')})`
+        `Invalid NDK archive contents (${extractedFiles.join(", ")})`,
       )
-    const extractedPath = path.join(parentExtractPath, extractedFiles[0])
+    const extractedPath = path.join(parentExtractPath, extractedFiles[0]!)
 
-    core.info('Adding to the tool cache...')
-    installPath = await tc.cacheDir(extractedPath, 'ndk', version)
+    core.info("Adding to the tool cache...")
+    installPath = await tc.cacheDir(extractedPath, "ndk", version)
 
     if (localCache) {
-      core.info('Adding to the local cache...')
+      core.info("Adding to the local cache...")
       await mkdirp(cacheDir)
       await copy(installPath, cacheDir)
       await cache.saveCache([cacheDir], cacheKey)
       installPath = cacheDir
     }
 
-    core.info('Done')
+    core.info("Done")
   }
 
   if (addToPath) {
     core.addPath(installPath)
-    core.info('Added to path')
+    core.info("Added to path")
   } else {
-    core.info('Not added to path')
+    core.info("Not added to path")
   }
 
   return installPath
 }
 
-async function checkCompatibility(): Promise<void> {
+function checkCompatibility() {
   const platform = os.platform()
-  const supportedPlatforms = ['linux', 'win32', 'darwin']
+  const supportedPlatforms = ["linux", "win32", "darwin"]
   if (!supportedPlatforms.includes(platform)) {
     throw new Error(`Unsupported platform '${platform}'`)
   }
 
   const arch = os.arch()
-  const supportedArchs = ['x64']
+  const supportedArchs = ["x64"]
   if (!supportedArchs.includes(arch)) {
     throw new Error(`Unsupported arch '${arch}'`)
   }
 }
 
-function getPlatormString(): string {
+function getPlatormString() {
   const platform = os.platform()
   switch (platform) {
-    case 'linux':
-      return '-linux'
-    case 'win32':
-      return '-windows'
-    case 'darwin':
-      return '-darwin'
+    case "linux":
+      return "-linux"
+    case "win32":
+      return "-windows"
+    case "darwin":
+      return "-darwin"
     default:
       throw new Error()
   }
 }
 
-function getArchString(version: string): string {
+function getArchString(version: string) {
   const numStr = version.slice(1)
   const num = parseInt(numStr, 10)
 
   if (num >= 23) {
-    return ''
+    return ""
   }
 
   const arch = os.arch()
   switch (arch) {
-    case 'x64':
-      return '-x86_64'
+    case "x64":
+      return "-x86_64"
     default:
       throw new Error()
   }
 }
 
-function getCacheKey(version: string): string {
+function getCacheKey(version: string) {
   const platform = getPlatormString()
   return `setup-ndk-${version}${platform}`
 }
 
-function getDownloadUrl(version: string): string {
+function getDownloadUrl(version: string) {
   const platform = getPlatormString()
   const arch = getArchString(version)
   return `https://dl.google.com/android/repository/android-ndk-${version}${platform}${arch}.zip`
