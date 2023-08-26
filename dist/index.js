@@ -63425,10 +63425,7 @@ async function getNdk(version, addToPath, linkToSdk, localCache) {
         const fullVersion = await getFullVersion(installPath);
         core.setOutput("ndk-full-version", fullVersion);
         if (linkToSdk && "ANDROID_HOME" in node_process_1.env) {
-            const ndksPath = path.join(node_process_1.env.ANDROID_HOME, "ndk");
-            await (0, fs_extra_1.mkdirp)(ndksPath);
-            const ndkPath = path.join(ndksPath, fullVersion);
-            await (0, fs_extra_1.symlink)(installPath, ndkPath, "dir");
+            await tryLinkToSdk(installPath, fullVersion, node_process_1.env.ANDROID_HOME);
         }
     }
     catch (error) {
@@ -63438,6 +63435,19 @@ async function getNdk(version, addToPath, linkToSdk, localCache) {
     return installPath;
 }
 exports.getNdk = getNdk;
+async function tryLinkToSdk(installPath, fullVersion, androidHome) {
+    core.info("Linking to SDK...");
+    try {
+        const ndksPath = path.join(androidHome, "ndk");
+        await (0, fs_extra_1.mkdirp)(ndksPath);
+        const ndkPath = path.join(ndksPath, fullVersion);
+        await (0, fs_extra_1.symlink)(installPath, ndkPath, "dir");
+    }
+    catch (error) {
+        core.warning((0, main_1.asError)(error));
+        core.warning("Failed to link to SDK");
+    }
+}
 async function getFullVersion(installPath) {
     core.info("Detecting full version...");
     const propertiesPath = path.join(installPath, "source.properties");

@@ -74,11 +74,7 @@ export async function getNdk(
     core.setOutput("ndk-full-version", fullVersion)
 
     if (linkToSdk && "ANDROID_HOME" in env) {
-      const ndksPath = path.join(env.ANDROID_HOME!, "ndk")
-      await mkdirp(ndksPath)
-
-      const ndkPath = path.join(ndksPath, fullVersion)
-      await symlink(installPath, ndkPath, "dir")
+      await tryLinkToSdk(installPath, fullVersion, env.ANDROID_HOME!)
     }
   } catch (error) {
     core.warning(asError(error))
@@ -86,6 +82,25 @@ export async function getNdk(
   }
 
   return installPath
+}
+
+async function tryLinkToSdk(
+  installPath: string,
+  fullVersion: string,
+  androidHome: string,
+) {
+  core.info("Linking to SDK...")
+
+  try {
+    const ndksPath = path.join(androidHome, "ndk")
+    await mkdirp(ndksPath)
+
+    const ndkPath = path.join(ndksPath, fullVersion)
+    await symlink(installPath, ndkPath, "dir")
+  } catch (error) {
+    core.warning(asError(error))
+    core.warning("Failed to link to SDK")
+  }
 }
 
 async function getFullVersion(installPath: string) {
