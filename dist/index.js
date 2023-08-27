@@ -63461,7 +63461,8 @@ async function getFullVersion(installPath) {
     const properties = ini.parse(propertiesContent);
     if ("Pkg.Revision" in properties &&
         typeof properties["Pkg.Revision"] === "string") {
-        return properties["Pkg.Revision"];
+        const [fullVersion] = properties["Pkg.Revision"].split("-");
+        return fullVersion;
     }
     else {
         throw new Error("source.properties file is missing Pkg.Revision");
