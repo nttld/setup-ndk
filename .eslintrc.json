@@ -7,8 +7,6 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 9,
-    "sourceType": "module",
     "project": true
   },
   "plugins": ["simple-import-sort"],

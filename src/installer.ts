@@ -1,3 +1,4 @@
+import { cp, mkdir, readdir, readFile, symlink } from "node:fs/promises"
 import * as os from "node:os"
 import * as path from "node:path"
 import { env } from "node:process"
@@ -5,7 +6,6 @@ import { env } from "node:process"
 import * as cache from "@actions/cache"
 import * as core from "@actions/core"
 import * as tc from "@actions/tool-cache"
-import { copy, mkdirp, readdir, readFile, symlink } from "fs-extra"
 import * as ini from "ini"
 
 import { asError } from "./main"
@@ -54,8 +54,8 @@ export async function getNdk(version: string, options: Options) {
 
     if (options.localCache) {
       core.info("Adding to the local cache...")
-      await mkdirp(cacheDir)
-      await copy(installPath, cacheDir)
+      await mkdir(cacheDir, { recursive: true })
+      await cp(`${installPath}/*`, cacheDir, { recursive: true })
       await cache.saveCache([cacheDir], cacheKey)
       installPath = cacheDir
     }
@@ -93,7 +93,7 @@ async function linkToSdk(
   core.info("Linking to SDK...")
 
   const ndksPath = path.join(androidHome, "ndk")
-  await mkdirp(ndksPath)
+  await mkdir(ndksPath, { recursive: true })
 
   const ndkPath = path.join(ndksPath, fullVersion)
   try {
