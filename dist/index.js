@@ -60570,7 +60570,7 @@ async function getNdk(version, options) {
         if (options.localCache) {
             core.info("Adding to the local cache...");
             await (0, promises_1.mkdir)(cacheDir, { recursive: true });
-            await (0, promises_1.cp)(`${installPath}/*`, cacheDir, { recursive: true });
+            await (0, promises_1.cp)(installPath, cacheDir, { recursive: true });
             await cache.saveCache([cacheDir], cacheKey);
             installPath = cacheDir;
         }
