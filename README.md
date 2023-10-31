@@ -14,7 +14,7 @@ steps:
   - uses: nttld/setup-ndk@v1
     with:
       ndk-version: r25c
-  - runs: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
+  - run: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
 ```
 
 ### Using the installation path
