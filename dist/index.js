@@ -60591,27 +60591,37 @@ async function getNdk(version, options) {
         core.warning((0, main_1.asError)(error));
         core.warning("Failed to detect full version");
     }
-    if (options.linkToSdk && fullVersion && "ANDROID_HOME" in node_process_1.env) {
+    if (options.linkToSdk) {
         await linkToSdk(installPath, fullVersion, node_process_1.env.ANDROID_HOME);
     }
     return { path: installPath, fullVersion };
 }
 exports.getNdk = getNdk;
 async function linkToSdk(installPath, fullVersion, androidHome) {
+    if (!fullVersion || !androidHome) {
+        core.warning("Unable to link to SDK");
+        return;
+    }
     core.info("Linking to SDK...");
     const ndksPath = path.join(androidHome, "ndk");
     await (0, promises_1.mkdir)(ndksPath, { recursive: true });
     const ndkPath = path.join(ndksPath, fullVersion);
+    const link = () => (0, promises_1.symlink)(installPath, ndkPath, "dir");
     try {
-        await (0, promises_1.symlink)(installPath, ndkPath, "dir");
+        await link();
     }
     catch (error) {
         const exists = error &&
             typeof error === "object" &&
             "code" in error &&
             error.code === "EEXIST";
-        if (!exists)
+        if (exists) {
+            await (0, promises_1.rm)(ndkPath, { recursive: true });
+            await link();
+        }
+        else {
             throw error;
+        }
     }
 }
 async function getFullVersion(installPath) {
