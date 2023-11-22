@@ -1,4 +1,4 @@
-import { cp, mkdir, readdir, readFile, symlink } from "node:fs/promises"
+import { cp, mkdir, readdir, readFile, rm, symlink } from "node:fs/promises"
 import * as os from "node:os"
 import * as path from "node:path"
 import { env } from "node:process"
@@ -78,8 +78,8 @@ export async function getNdk(version: string, options: Options) {
     core.warning("Failed to detect full version")
   }
 
-  if (options.linkToSdk && fullVersion && "ANDROID_HOME" in env) {
-    await linkToSdk(installPath, fullVersion, env.ANDROID_HOME!)
+  if (options.linkToSdk) {
+    await linkToSdk(installPath, fullVersion, env.ANDROID_HOME)
   }
 
   return { path: installPath, fullVersion }
@@ -87,24 +87,36 @@ export async function getNdk(version: string, options: Options) {
 
 async function linkToSdk(
   installPath: string,
-  fullVersion: string,
-  androidHome: string,
+  fullVersion: string | undefined,
+  androidHome: string | undefined,
 ) {
+  if (!fullVersion || !androidHome) {
+    core.warning("Unable to link to SDK")
+    return
+  }
+
   core.info("Linking to SDK...")
 
   const ndksPath = path.join(androidHome, "ndk")
   await mkdir(ndksPath, { recursive: true })
 
   const ndkPath = path.join(ndksPath, fullVersion)
+  const link = () => symlink(installPath, ndkPath, "dir")
+
   try {
-    await symlink(installPath, ndkPath, "dir")
+    await link()
   } catch (error) {
     const exists =
       error &&
       typeof error === "object" &&
       "code" in error &&
       error.code === "EEXIST"
-    if (!exists) throw error
+    if (exists) {
+      await rm(ndkPath, { recursive: true })
+      await link()
+    } else {
+      throw error
+    }
   }
 }
 
