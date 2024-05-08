@@ -21,9 +21,9 @@ async function main() {
 export function asError(error: unknown): Error | string {
   if (typeof error === "string") return error
   else if (error instanceof Error) return error
-  else return Object.prototype.toString.call(error)
+  else return String(error)
 }
 
-main().catch((error) => {
+main().catch((error: unknown) => {
   core.setFailed(asError(error))
 })

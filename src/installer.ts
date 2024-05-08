@@ -141,16 +141,14 @@ async function getFullVersion(installPath: string) {
 }
 
 function checkCompatibility() {
-  const platform = os.platform()
-  const supportedPlatforms = ["linux", "win32", "darwin"]
-  if (!supportedPlatforms.includes(platform)) {
-    throw new Error(`Unsupported platform "${platform}"`)
-  }
+  const supported = ["linux-x64", "win32-x64", "darwin-arm64", "darwin-x64"]
 
+  const platform = os.platform()
   const arch = os.arch()
-  const supportedArchs = ["x64"]
-  if (!supportedArchs.includes(arch)) {
-    throw new Error(`Unsupported arch "${arch}"`)
+  const host = `${platform}-${arch}`
+
+  if (!supported.includes(host)) {
+    throw new Error(`Unsupported host "${host}"`)
   }
 }
 
@@ -180,6 +178,8 @@ function getArchString(version: string) {
   switch (arch) {
     case "x64":
       return "-x86_64"
+    case "arm64":
+      return "-aarch64"
     default:
       throw new Error()
   }

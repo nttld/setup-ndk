@@ -319,7 +319,8 @@ function createHttpClient() {
     return new http_client_1.HttpClient('actions/cache', [bearerCredentialHandler], getRequestOptions());
 }
 function getCacheVersion(paths, compressionMethod, enableCrossOsArchive = false) {
-    const components = paths;
+    // don't pass changes upstream
+    const components = paths.slice();
     // Add compression method to cache version to restore
     // compressed cache as per compression method
     if (compressionMethod) {
@@ -608,26 +609,21 @@ function resolvePaths(patterns) {
             implicitDescendants: false
         });
         try {
-            for (var _e = true, _f = __asyncValues(globber.globGenerator()), _g; _g = yield _f.next(), _a = _g.done, !_a;) {
+            for (var _e = true, _f = __asyncValues(globber.globGenerator()), _g; _g = yield _f.next(), _a = _g.done, !_a; _e = true) {
                 _c = _g.value;
                 _e = false;
-                try {
-                    const file = _c;
-                    const relativeFile = path
-                        .relative(workspace, file)
-                        .replace(new RegExp(`\\${path.sep}`, 'g'), '/');
-                    core.debug(`Matched: ${relativeFile}`);
-                    // Paths are made relative so the tar entries are all relative to the root of the workspace.
-                    if (relativeFile === '') {
-                        // path.relative returns empty string if workspace and file are equal
-                        paths.push('.');
-                    }
-                    else {
-                        paths.push(`${relativeFile}`);
-                    }
+                const file = _c;
+                const relativeFile = path
+                    .relative(workspace, file)
+                    .replace(new RegExp(`\\${path.sep}`, 'g'), '/');
+                core.debug(`Matched: ${relativeFile}`);
+                // Paths are made relative so the tar entries are all relative to the root of the workspace.
+                if (relativeFile === '') {
+                    // path.relative returns empty string if workspace and file are equal
+                    paths.push('.');
                 }
-                finally {
-                    _e = true;
+                else {
+                    paths.push(`${relativeFile}`);
                 }
             }
         }
@@ -711,7 +707,10 @@ function assertDefined(name, value) {
 exports.assertDefined = assertDefined;
 function isGhes() {
     const ghUrl = new URL(process.env['GITHUB_SERVER_URL'] || 'https://github.com');
-    return ghUrl.hostname.toUpperCase() !== 'GITHUB.COM';
+    const hostname = ghUrl.hostname.trimEnd().toUpperCase();
+    const isGitHubHost = hostname === 'GITHUB.COM';
+    const isGheHost = hostname.endsWith('.GHE.COM') || hostname.endsWith('.GHE.LOCALHOST');
+    return !isGitHubHost && !isGheHost;
 }
 exports.isGhes = isGhes;
 //# sourceMappingURL=cacheUtils.js.map
@@ -729,7 +728,7 @@ var CacheFilename;
 (function (CacheFilename) {
     CacheFilename["Gzip"] = "cache.tgz";
     CacheFilename["Zstd"] = "cache.tzst";
-})(CacheFilename = exports.CacheFilename || (exports.CacheFilename = {}));
+})(CacheFilename || (exports.CacheFilename = CacheFilename = {}));
 var CompressionMethod;
 (function (CompressionMethod) {
     CompressionMethod["Gzip"] = "gzip";
@@ -737,12 +736,12 @@ var CompressionMethod;
     // This enum is for earlier version of zstd that does not have --long support
     CompressionMethod["ZstdWithoutLong"] = "zstd-without-long";
     CompressionMethod["Zstd"] = "zstd";
-})(CompressionMethod = exports.CompressionMethod || (exports.CompressionMethod = {}));
+})(CompressionMethod || (exports.CompressionMethod = CompressionMethod = {}));
 var ArchiveToolType;
 (function (ArchiveToolType) {
     ArchiveToolType["GNU"] = "gnu";
     ArchiveToolType["BSD"] = "bsd";
-})(ArchiveToolType = exports.ArchiveToolType || (exports.ArchiveToolType = {}));
+})(ArchiveToolType || (exports.ArchiveToolType = ArchiveToolType = {}));
 // The default number of retry attempts.
 exports.DefaultRetryAttempts = 2;
 // The default delay in milliseconds between retry attempts.
@@ -46685,7 +46684,7 @@ const safe = val => {
   return val.split(';').join('\\;').split('#').join('\\#')
 }
 
-const unsafe = (val, doUnesc) => {
+const unsafe = val => {
   val = (val || '').trim()
   if (isQuoted(val)) {
     // remove the single quotes before calling JSON.parse
@@ -60641,15 +60640,12 @@ async function getFullVersion(installPath) {
     }
 }
 function checkCompatibility() {
+    const supported = ["linux-x64", "win32-x64", "darwin-arm64", "darwin-x64"];
     const platform = os.platform();
-    const supportedPlatforms = ["linux", "win32", "darwin"];
-    if (!supportedPlatforms.includes(platform)) {
-        throw new Error(`Unsupported platform "${platform}"`);
-    }
     const arch = os.arch();
-    const supportedArchs = ["x64"];
-    if (!supportedArchs.includes(arch)) {
-        throw new Error(`Unsupported arch "${arch}"`);
+    const host = `${platform}-${arch}`;
+    if (!supported.includes(host)) {
+        throw new Error(`Unsupported host "${host}"`);
     }
 }
 function getPlatormString() {
@@ -60675,6 +60671,8 @@ function getArchString(version) {
     switch (arch) {
         case "x64":
             return "-x86_64";
+        case "arm64":
+            return "-aarch64";
         default:
             throw new Error();
     }
@@ -60744,7 +60742,7 @@ function asError(error) {
     else if (error instanceof Error)
         return error;
     else
-        return Object.prototype.toString.call(error);
+        return String(error);
 }
 exports.asError = asError;
 main().catch((error) => {
