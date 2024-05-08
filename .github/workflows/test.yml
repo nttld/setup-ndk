@@ -26,8 +26,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        ndk-version: [r21e, r25c]
+        ndk-version: [r21e, r26d]
         local-cache: [true, false]
+        exclude:
+          - os: macos-latest
+            ndk-version: r21e
+      fail-fast: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -64,7 +68,7 @@ jobs:
       - uses: ./
         id: install-ndk-25
         with:
-          ndk-version: r25c
+          ndk-version: r26d
           add-to-path: false
           local-cache: ${{ matrix.local-cache }}
 
