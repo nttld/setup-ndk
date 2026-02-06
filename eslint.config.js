@@ -1,9 +1,9 @@
-const eslint = require("@eslint/js")
-const ts = require("typescript-eslint")
-const prettier = require("eslint-config-prettier")
-const imports = require("eslint-plugin-simple-import-sort")
+import eslint from "@eslint/js"
+import ts from "typescript-eslint"
+import prettier from "eslint-config-prettier"
+import imports from "eslint-plugin-simple-import-sort"
 
-module.exports = ts.config(
+export default ts.config(
   { ignores: ["node_modules/", "dist/"] },
   {
     files: ["**/*.ts"],

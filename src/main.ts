@@ -1,6 +1,6 @@
 import * as core from "@actions/core"
 
-import { getNdk } from "./installer"
+import { getNdk } from "./installer.js"
 
 async function main() {
   const version = core.getInput("ndk-version")
