@@ -3,7 +3,7 @@
   "version": "1.5.0",
   "license": "MIT",
   "private": true,
-  "author": "Raphaël Thériault",
+  "author": "Raphaël Thériault <self@raftar.io>",
   "description": "Setup Android NDK",
   "repository": "nttld/setup-ndk",
   "keywords": [
@@ -13,6 +13,7 @@
     "ndk"
   ],
   "main": "src/main.ts",
+  "type": "module",
   "scripts": {
     "build": "ncc build --source-map --license licenses.txt",
     "fix": "eslint --fix . && prettier --write .",
@@ -20,23 +21,23 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@actions/cache": "^3.2.4",
-    "@actions/core": "^1.10.1",
-    "@actions/tool-cache": "^2.0.1",
-    "ini": "^4.1.2"
+    "@actions/cache": "^6.0.0",
+    "@actions/core": "^3.0.0",
+    "@actions/tool-cache": "^4.0.0",
+    "ini": "^6.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^8.57.0",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/ini": "^4.1.0",
-    "@types/node": "^20.8.4",
-    "@vercel/ncc": "^0.38.1",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
+    "@eslint/js": "^9.39.2",
+    "@tsconfig/node24": "*",
+    "@types/ini": "^4.1.1",
+    "@types/node": "^24",
+    "@vercel/ncc": "^0.38.4",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^12.1.0",
-    "husky": "^9.0.11",
-    "prettier": "3.3.1",
-    "typescript": "~5.4.5",
-    "typescript-eslint": "^7.12.0"
+    "husky": "^9.1.7",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.55.0"
   }
 }

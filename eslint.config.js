@@ -1,16 +1,17 @@
-const eslint = require("@eslint/js")
-const ts = require("typescript-eslint")
-const prettier = require("eslint-config-prettier")
-const imports = require("eslint-plugin-simple-import-sort")
+import eslint from "@eslint/js"
+import ts from "typescript-eslint"
+import prettier from "eslint-config-prettier"
+import imports from "eslint-plugin-simple-import-sort"
+import { defineConfig } from "eslint/config"
 
-module.exports = ts.config(
+export default defineConfig(
   { ignores: ["node_modules/", "dist/"] },
   {
     files: ["**/*.ts"],
     extends: [
       eslint.configs.recommended,
-      ...ts.configs.strictTypeChecked,
-      ...ts.configs.stylisticTypeChecked,
+      ts.configs.strictTypeChecked,
+      ts.configs.stylisticTypeChecked,
       prettier,
     ],
     plugins: {
@@ -18,7 +19,7 @@ module.exports = ts.config(
     },
     languageOptions: {
       parserOptions: {
-        EXPERIMENTAL_useProjectService: true,
+        projectService: true,
       },
     },
     rules: {

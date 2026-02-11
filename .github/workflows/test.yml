@@ -10,10 +10,10 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 24
           cache: npm
       - run: npm ci
 
@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        ndk-version: [r21e, r26d]
+        ndk-version: [r21e, r27d]
         local-cache: [true, false]
         exclude:
           - os: macos-latest
@@ -35,7 +35,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./
         id: install-ndk
         with:
@@ -58,7 +58,7 @@ jobs:
         local-cache: [true, false]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./
         id: install-ndk-21
         with:
@@ -68,7 +68,7 @@ jobs:
       - uses: ./
         id: install-ndk-25
         with:
-          ndk-version: r26d
+          ndk-version: r27d
           add-to-path: false
           local-cache: ${{ matrix.local-cache }}
 

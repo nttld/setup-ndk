@@ -8,7 +8,7 @@ import * as core from "@actions/core"
 import * as tc from "@actions/tool-cache"
 import * as ini from "ini"
 
-import { asError } from "./main"
+import { asError } from "./main.js"
 
 interface Options {
   addToPath: boolean
