@@ -20,10 +20,10 @@ jobs:
       MINOR: ${{ inputs.minor }}
       PATCH: ${{ inputs.patch }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 24
       - name: configure git
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"

@@ -13,7 +13,7 @@ steps:
   - uses: actions/checkout@v3
   - uses: nttld/setup-ndk@v1
     with:
-      ndk-version: r26d
+      ndk-version: r27d
   - run: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
 ```
 
@@ -40,7 +40,7 @@ steps:
   - uses: nttld/setup-ndk@v1
     id: setup-ndk
     with:
-      ndk-version: r26d
+      ndk-version: r27d
       link-to-sdk: true
   - run: ./gradlew build
 ```

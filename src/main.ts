@@ -24,6 +24,8 @@ export function asError(error: unknown): Error | string {
   else return String(error)
 }
 
-main().catch((error: unknown) => {
+try {
+  await main()
+} catch (error) {
   core.setFailed(asError(error))
-})
+}
